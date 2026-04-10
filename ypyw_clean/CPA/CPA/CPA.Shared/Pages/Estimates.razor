@@ -1,0 +1,44 @@
+﻿@page "/estimates"
+@using CPA.Shared.Models
+@using CPA.Shared.Services
+@inject EstimateService EstimateService
+
+<h3>Painting Jobs Manager</h3>
+
+@if (estimates == null)
+{
+    <p><em>Loading data from SQL Server...</em></p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Client</th>
+                <th>Status</th>
+                <th>Amount</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var job in estimates)
+            {
+                <tr>
+                    <td>@job.DocumentId</td>
+                    <td>@job.ClientName</td>
+                    <td>@job.Status</td>
+                    <td>@job.EstimateAmount</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    private List<Estimate>? estimates;
+
+    protected override async Task OnInitializedAsync()
+    {
+        estimates = await EstimateService.GetEstimatesAsync();
+    }
+}

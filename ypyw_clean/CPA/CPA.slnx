@@ -1,0 +1,6 @@
+<Solution>
+  <Project Path="CPA/CPA.Shared/CPA.Shared.csproj" />
+  <Project Path="CPA/CPA.Web.Client/CPA.Web.Client.csproj" />
+  <Project Path="CPA/CPA.Web/CPA.Web.csproj" />
+  <Project Path="CPA/CPA/CPA.csproj" />
+</Solution>
