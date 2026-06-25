@@ -12,6 +12,9 @@ builder.Services.AddRazorComponents()
 // Add device-specific services used by the CPA.Shared project
 builder.Services.AddSingleton<IFormFactor, FormFactor>();
 
+// EstimateService reads its connection string from configuration (ConnectionStrings:YpywDatabase).
+builder.Services.AddTransient<EstimateService>();
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

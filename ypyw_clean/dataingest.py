@@ -7,18 +7,37 @@ from sqlalchemy import create_engine
 
 # --- CONFIGURATION ---
 
-# 1. DATABASE CONNECTION
-SERVER = r'(localdb)\MSSQLLocalDB' 
-DATABASE = 'YourPaintingYourWay'
-DRIVER = 'ODBC Driver 17 for SQL Server'
+# 1. DATABASE CONNECTION (Azure SQL via environment variables)
+from urllib.parse import quote_plus
 
-# Connection String
-connection_url = f"mssql+pyodbc://@{SERVER}/{DATABASE}?driver={DRIVER}&trusted_connection=yes"
+SERVER = os.environ.get('SQL_SERVER', 'ypyw-sql-ahmedsohail.database.windows.net')
+DATABASE = os.environ.get('SQL_DATABASE', 'ypyw-bi-db')
+SQL_ADMIN_USER = os.environ.get('SQL_ADMIN_USER', 'ypywadmin')
+SQL_ADMIN_PASSWORD = os.environ.get('SQL_ADMIN_PASSWORD')
+DRIVER = os.environ.get('SQL_DRIVER', 'ODBC Driver 18 for SQL Server')
+
+if not SQL_ADMIN_PASSWORD:
+    raise ValueError("SQL_ADMIN_PASSWORD environment variable not set")
+
+# Connection String (pyodbc + ODBC Driver 18, encrypted Azure SQL connection)
+odbc_params = quote_plus(
+    f"Driver={{{DRIVER}}};"
+    f"Server=tcp:{SERVER},1433;"
+    f"Database={DATABASE};"
+    f"Uid={SQL_ADMIN_USER};"
+    f"Pwd={SQL_ADMIN_PASSWORD};"
+    "Encrypt=yes;"
+    "TrustServerCertificate=no;"
+    "Connection Timeout=30;"
+)
+connection_url = f"mssql+pyodbc:///?odbc_connect={odbc_params}"
 engine = create_engine(connection_url)
 
-# 2. FOLDER PATHS
-# I added your specific username 'sohai' here
-BASE_DIR = r"C:\Users\sohai\Documents\YourPaintingYourWay"
+# 2. FOLDER PATHS (configurable via environment, relative fallback)
+BASE_DIR = os.environ.get(
+    'YPYW_BASE_DIR',
+    os.path.join(os.path.dirname(os.path.abspath(__file__)), "YourPaintingYourWay"),
+)
 
 WATCH_FOLDER = os.path.join(BASE_DIR, "DropZone")
 PROCESSED_FOLDER = os.path.join(BASE_DIR, "Processed")

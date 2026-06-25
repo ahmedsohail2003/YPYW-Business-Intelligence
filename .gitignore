@@ -1,0 +1,14 @@
+# Environment files with secrets (never commit)
+.env
+*.env
+!*.env.example
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+# .NET build output
+bin/
+obj/
