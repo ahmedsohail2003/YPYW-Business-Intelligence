@@ -135,15 +135,6 @@ fully managed **Azure SQL Database**, deployed as reproducible
   monthly compute charge **within the free-tier allowance**. See
   [`azure/DEPLOY.md`](azure/DEPLOY.md) for the full cost breakdown and runbook.
 
-### Resume framing
-
-> Architected and deployed a managed **Azure SQL Database** backend for a
-> production-grade business-intelligence platform using **Infrastructure-as-Code
-> (Bicep + Azure CLI)**, automating provisioning and schema rollout through a
-> single idempotent PowerShell runbook with secure, secret-free credential
-> handling — engineered on Azure's free serverless tier to run at **effectively
-> $0/month** (within the free-tier allowance) via idle auto-pause.
-
 ## Status
 This project is in active development (~60% complete). A raw-to-clean
 transformation layer (currency/date parsing via `vEstimatesClean`) is already

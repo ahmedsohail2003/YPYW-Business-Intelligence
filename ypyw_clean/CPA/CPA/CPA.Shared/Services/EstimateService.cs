@@ -23,7 +23,7 @@ namespace CPA.Shared.Services
         {
             using (var connection = new SqlConnection(_connectionString))
             {
-                var sql = "SELECT [Document Id] as DocumentId, [Client Name] as ClientName, [Status], [Estimate Amount] as EstimateAmount FROM RawEstimates";
+                var sql = "SELECT DocumentId, ClientName, Status, EstimateAmount FROM dbo.vEstimatesClean";
 
                 var result = await connection.QueryAsync<Estimate>(sql);
                 return result.ToList();

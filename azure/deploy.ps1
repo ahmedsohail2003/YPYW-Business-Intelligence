@@ -108,7 +108,8 @@ az deployment group create `
 # Step 5 — Apply the relational schema to the new database.
 #          -N forces an encrypted connection (Azure SQL requires encryption;
 #          classic sqlcmd on ODBC 17 defaults to unencrypted and would fail);
-#          -I enables QUOTED_IDENTIFIER (needed for bracketed column names);
+#          -I enables QUOTED_IDENTIFIER, which sqlcmd leaves OFF by default but
+#             Azure SQL requires ON to CREATE/ALTER the view (not about brackets);
 #          -b makes sqlcmd return a non-zero exit code on SQL errors so the
 #          script fails loudly instead of silently.
 # ---------------------------------------------------------------------------

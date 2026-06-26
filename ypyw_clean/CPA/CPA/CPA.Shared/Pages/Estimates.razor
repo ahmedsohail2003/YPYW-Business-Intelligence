@@ -27,7 +27,7 @@ else
                     <td>@job.DocumentId</td>
                     <td>@job.ClientName</td>
                     <td>@job.Status</td>
-                    <td>@job.EstimateAmount</td>
+                    <td>@job.EstimateAmount?.ToString("C")</td>
                 </tr>
             }
         </tbody>
