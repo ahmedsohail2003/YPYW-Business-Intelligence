@@ -57,7 +57,7 @@ LocalDB — see [Cloud Deployment (Azure)](#cloud-deployment-azure) below.
 - **Backend:** Python 3, watchdog, pandas, SQLAlchemy
 - **Database:** Azure SQL Database (free serverless tier), T-SQL
 - **Cloud / IaC:** Microsoft Azure, Bicep, Azure CLI
-- **Frontend:** C# / .NET 8, Blazor Hybrid, MAUI, Dapper
+- **Frontend:** C# / .NET 10, Blazor Hybrid, MAUI, Dapper
 - **Platforms:** Web, Windows, macOS, Android, iOS
 
 ## Setup
@@ -66,7 +66,7 @@ LocalDB — see [Cloud Deployment (Azure)](#cloud-deployment-azure) below.
 - Python 3.x with `watchdog`, `pandas`, `sqlalchemy`, `pyodbc`
 - ODBC Driver 17 or 18 for SQL Server (for Azure SQL connectivity)
 - An Azure SQL Database — provision it with `azure/deploy.ps1` (see [Cloud Deployment (Azure)](#cloud-deployment-azure))
-- .NET 8 SDK
+- .NET 10 SDK
 
 ### Running the ETL Pipeline
 First configure credentials: copy `azure/.env.example` to `azure/.env` and fill in your values (or run `azure/deploy.ps1`, which provisions the database for you).
