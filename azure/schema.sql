@@ -153,3 +153,102 @@ SELECT
     LeadSourceId
 FROM dbo.RawEstimates;
 GO
+
+/* ---------------------------------------------------------------------
+   6. MarketingCosts seed  (monthly ad spend per PAID channel, 2025)
+        Referral is organic (no rows -> $0 cost), which is what makes it
+        the highest-ROI channel in vLeadSourceRoi below. Seeded only if
+        the table is empty so re-runs stay idempotent.
+   --------------------------------------------------------------------- */
+IF NOT EXISTS (SELECT 1 FROM dbo.MarketingCosts)
+BEGIN
+    ;WITH Months AS (
+        SELECT CAST('2025-01-01' AS date) AS m
+        UNION ALL
+        SELECT DATEADD(month, 1, m) FROM Months WHERE m < '2025-12-01'
+    ),
+    Channels AS (
+        SELECT v.LeadSourceId, v.MonthlyCost
+        FROM (VALUES
+            ((SELECT Id FROM dbo.LeadSources WHERE Name = N'Homestars'),  300.00),
+            ((SELECT Id FROM dbo.LeadSources WHERE Name = N'Bark'),       200.00),
+            ((SELECT Id FROM dbo.LeadSources WHERE Name = N'Facebook'),   250.00),
+            ((SELECT Id FROM dbo.LeadSources WHERE Name = N'Google Ads'), 600.00)
+        ) v(LeadSourceId, MonthlyCost)
+    )
+    INSERT INTO dbo.MarketingCosts (CostDate, Amount, LeadSourceId)
+    SELECT m, MonthlyCost, LeadSourceId
+    FROM Months CROSS JOIN Channels
+    OPTION (MAXRECURSION 12);
+END;
+GO
+
+/* ---------------------------------------------------------------------
+   7. Analytics views  (reporting layer the BI dashboard reads from)
+        All read from vEstimatesClean so currency/date parsing is applied
+        once. Status funnel values are 'Won' / 'Lost' / 'Pending';
+        win rate = Won / (Won + Lost), ignoring still-open 'Pending'.
+   --------------------------------------------------------------------- */
+
+-- 7a. Single-row KPI summary for the dashboard cards.
+CREATE OR ALTER VIEW dbo.vKpiSummary AS
+SELECT
+    COUNT(*)                                                        AS TotalEstimates,
+    SUM(EstimateAmount)                                             AS TotalPipeline,
+    SUM(CASE WHEN Status = 'Won' THEN EstimateAmount ELSE 0 END)    AS WonValue,
+    CAST( SUM(CASE WHEN Status = 'Won' THEN 1.0 ELSE 0 END)
+          / NULLIF(SUM(CASE WHEN Status IN ('Won', 'Lost') THEN 1.0 ELSE 0 END), 0)
+        AS decimal(5, 4))                                           AS WinRate,
+    CAST(AVG(EstimateAmount) AS decimal(12, 2))                     AS AvgDeal
+FROM dbo.vEstimatesClean;
+GO
+
+-- 7b. Lead-source ROI: won revenue vs. marketing spend per channel.
+CREATE OR ALTER VIEW dbo.vLeadSourceRoi AS
+SELECT
+    ls.Name                                                        AS LeadSource,
+    COUNT(*)                                                        AS Leads,
+    SUM(CASE WHEN e.Status = 'Won' THEN e.EstimateAmount ELSE 0 END) AS WonValue,
+    COALESCE(mc.Cost, 0)                                           AS MarketingCost,
+    CAST( SUM(CASE WHEN e.Status = 'Won' THEN 1.0 ELSE 0 END)
+          / NULLIF(SUM(CASE WHEN e.Status IN ('Won', 'Lost') THEN 1.0 ELSE 0 END), 0)
+        AS decimal(5, 4))                                          AS WinRate,
+    CASE WHEN COALESCE(mc.Cost, 0) = 0 THEN NULL
+         ELSE CAST(SUM(CASE WHEN e.Status = 'Won' THEN e.EstimateAmount ELSE 0 END)
+                   / mc.Cost AS decimal(10, 2))
+    END                                                            AS RoiMultiple
+FROM dbo.vEstimatesClean e
+JOIN dbo.LeadSources ls ON ls.Id = e.LeadSourceId
+LEFT JOIN (
+    SELECT LeadSourceId, SUM(Amount) AS Cost
+    FROM dbo.MarketingCosts
+    GROUP BY LeadSourceId
+) mc ON mc.LeadSourceId = e.LeadSourceId
+GROUP BY ls.Name, mc.Cost;
+GO
+
+-- 7c. Sales attribution by team member.
+CREATE OR ALTER VIEW dbo.vSalesByPerson AS
+SELECT
+    sp.Name                                                        AS SalesPerson,
+    COUNT(*)                                                        AS Deals,
+    SUM(CASE WHEN e.Status = 'Won' THEN e.EstimateAmount ELSE 0 END) AS WonValue,
+    CAST( SUM(CASE WHEN e.Status = 'Won' THEN 1.0 ELSE 0 END)
+          / NULLIF(SUM(CASE WHEN e.Status IN ('Won', 'Lost') THEN 1.0 ELSE 0 END), 0)
+        AS decimal(5, 4))                                          AS WinRate
+FROM dbo.vEstimatesClean e
+JOIN dbo.SalesPeople sp ON sp.Id = e.SalesPersonId
+GROUP BY sp.Name;
+GO
+
+-- 7d. Monthly pipeline trend.
+CREATE OR ALTER VIEW dbo.vMonthlyTrend AS
+SELECT
+    FORMAT(EstimateExpiresDate, 'yyyy-MM')                         AS [Month],
+    COUNT(*)                                                       AS Estimates,
+    SUM(EstimateAmount)                                            AS Pipeline,
+    SUM(CASE WHEN Status = 'Won' THEN EstimateAmount ELSE 0 END)   AS WonValue
+FROM dbo.vEstimatesClean
+WHERE EstimateExpiresDate IS NOT NULL
+GROUP BY FORMAT(EstimateExpiresDate, 'yyyy-MM');
+GO

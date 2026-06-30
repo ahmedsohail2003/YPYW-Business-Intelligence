@@ -59,6 +59,10 @@ df = pd.read_csv(CSV_FILE)
 df.columns = df.columns.str.strip()
 print(f"Read {len(df)} rows from {CSV_FILE.name}; columns: {list(df.columns)}")
 
+# Idempotent re-seed: clear any prior rows so re-running never duplicates data.
+with engine.begin() as conn:
+    conn.execute(text("DELETE FROM RawEstimates"))
+
 df.to_sql("RawEstimates", engine, if_exists="append", index=False)
 
 with engine.connect() as conn:

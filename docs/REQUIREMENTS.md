@@ -2,15 +2,16 @@
 
 **Document type:** Business / system requirements
 **Project:** YPYW Business Intelligence Platform
-**Status:** Living document — tracks a project that is ~60% complete
-**Last updated:** 2026-06-25
+**Status:** Living document — core ETL, Azure backend, analytics views, and the BI dashboard are delivered; dashboard CRUD and drill-downs are in progress
+**Last updated:** 2026-06-29
 
 This document captures the business context, stakeholders, scope, and the
 functional and non-functional requirements for the YPYW Business Intelligence
 (BI) platform. Every requirement here is traceable to a real component of the
-system: the Python ETL pipeline (`ypyw_clean/dataingest.py`), the Azure SQL
-schema (`azure/schema.sql`), the Azure Infrastructure-as-Code (`azure/`), and
-the Blazor dashboard (`ypyw_clean/CPA/`).
+system: the Python ETL pipeline (`ypyw_clean/dataingest.py`), the synthetic-data
+generator (`azure/generate_sample_data.py`), the Azure SQL schema and analytics
+views (`azure/schema.sql`), the Azure Infrastructure-as-Code (`azure/`), and the
+Blazor BI dashboard (`ypyw_clean/CPA/`).
 
 ---
 
@@ -73,8 +74,14 @@ cost.
   `DATE` for reporting.
 - Reference/analytics tables for sales people, lead sources, and monthly
   marketing costs to support attribution and ROI analysis.
-- A Blazor web/hybrid dashboard that displays estimate data read from the clean
-  view.
+- A Blazor web/hybrid **BI dashboard**: KPI summary (estimates, pipeline, won
+  value, win rate, average deal), lead-source ROI, sales-by-person, and a monthly
+  pipeline trend — each read from a dedicated analytics view.
+- **Analytics views** over the clean view (`vKpiSummary`, `vLeadSourceRoi`,
+  `vSalesByPerson`, `vMonthlyTrend`) that compute win rate and channel ROI.
+- A **reproducible synthetic-data generator** that enriches the sample estimates
+  with status, salesperson, lead source, and dates for demo/analytics.
+- Idempotent (safely re-runnable) database provisioning and seeding.
 - Reproducible cloud provisioning of the database via Infrastructure-as-Code.
 
 ### 3.2 Out of scope (for this phase)
@@ -84,9 +91,9 @@ cost.
   enhancement, not a current commitment.
 - Real-time streaming or sub-minute latency; ingestion is batch/file-driven.
 - Authentication, multi-user roles, and audit logging in the dashboard.
-- Automated assignment of `SalesPersonId` / `LeadSourceId` — these attribution
-  tags exist in the schema but are populated out of band, not by the ingest
-  pipeline.
+- Automated assignment of `SalesPersonId` / `LeadSourceId` from a *live* CSV
+  export — the production ingest pipeline does not infer these tags. (For the
+  demo dataset they are assigned by `generate_sample_data.py`.)
 - Migrating historical estimates that were never exported to CSV.
 - Predictive analytics / forecasting.
 
@@ -137,6 +144,12 @@ that implements (or is planned to implement) it.
 | **FR-14** | The system **shall provide a web dashboard** that displays estimate data to the business operator. | `Estimates.razor`, `EstimateService.cs` (Dapper); compiles and reads the clean view | ✅ |
 | **FR-15** | The database schema **shall be deployable repeatably and idempotently** — every object is guarded so the schema script can be re-run without error. | `schema.sql` (`IF NOT EXISTS` / `CREATE OR ALTER`); `deploy.ps1` | ✅ |
 | **FR-16** | Lookups on `Document Id` **shall remain fast** even though it is not the primary key, via a supporting non-clustered index. | `schema.sql` (`IX_RawEstimates_DocumentId`) | ✅ |
+| **FR-17** | The system **shall provide a reproducible synthetic-data generator** that enriches the sample estimates with a status funnel (`Won`/`Lost`/`Pending`), salesperson, lead source, and dates, using a fixed seed and preserving the original amounts (~$7.38M total). | `azure/generate_sample_data.py` | ✅ |
+| **FR-18** | The system **shall seed monthly marketing spend per paid channel** so channel ROI can be computed (referral/organic carries $0 spend). | `schema.sql` (`MarketingCosts` seed) | ✅ |
+| **FR-19** | The system **shall expose analytics views** over `vEstimatesClean` for a KPI summary, lead-source ROI, sales-by-person, and monthly trend. | `schema.sql` (`vKpiSummary`, `vLeadSourceRoi`, `vSalesByPerson`, `vMonthlyTrend`) | ✅ |
+| **FR-20** | The BI dashboard **shall display KPI cards, a lead-source ROI breakdown (win rate + ROI multiple), a sales-by-person table, and a monthly pipeline chart**, and shall surface the headline ROI insight automatically. | `Home.razor`, `EstimateService.cs`, `Models/Analytics.cs` | ✅ |
+| **FR-21** | If no database is configured, the dashboard **shall degrade gracefully** with a clear "connect a database" message rather than erroring. | `Home.razor` / `Estimates.razor` (try/catch + banner) | ✅ |
+| **FR-22** | Re-seeding the database **shall be idempotent** — re-running the seeder clears prior rows so data is never duplicated. | `seed_sample_data.py` (`DELETE FROM RawEstimates` before load) | ✅ |
 
 ---
 
@@ -226,9 +239,10 @@ flowchart TD
     G --> H([Operator reviews totals and counts])
 ```
 
-### 6.3 Marketing-ROI flow (analytical, planned)
+### 6.3 Marketing-ROI flow (analytical) — delivered via `vLeadSourceRoi`
 
-How pipeline is compared against ad spend by channel.
+How pipeline is compared against ad spend by channel (now implemented in the
+`vLeadSourceRoi` view and surfaced on the dashboard).
 
 ```mermaid
 flowchart LR
@@ -254,9 +268,13 @@ Each criterion is measurable and maps back to one or more requirements.
 | **AC-5** | Rows with blank/invalid dates or amounts surface as `NULL` in the clean view rather than causing query failure. | FR-8, NFR-4 | Query the view over rows with empty `Estimate Expires Date`; confirm `NULL`, no error. |
 | **AC-6** | Re-running `schema.sql` (or `deploy.ps1`) on an existing database completes **without error** and does not duplicate or drop objects. | FR-15, NFR-3 | Run the schema twice; confirm clean second run. |
 | **AC-7** | The dashboard renders estimate rows (id, client, status, amount) sourced from `vEstimatesClean`. | FR-9, FR-14 | Load the Blazor page; confirm typed values match the view. |
-| **AC-8** | No SQL admin password is **committed to source control** (`azure/.env` is gitignored), and the ETL **fails fast** with a clear error when `SQL_ADMIN_PASSWORD` is unset. | NFR-6 | `git ls-files` shows no `.env`/secret tracked; run ETL without the env var and confirm it raises. |
+| **AC-8** | No SQL admin password is **committed to source control** (any local `azure/.env` is gitignored and untracked), and the ETL **fails fast** with a clear error when `SQL_ADMIN_PASSWORD` is unset. | NFR-6 | `git ls-files` shows no `.env`/secret tracked; run ETL without the env var and confirm it raises. |
 | **AC-9** | All provisioned resources reside in `canadacentral`, and the SQL firewall permits **only** the deploying machine's IP. | NFR-8, NFR-9 | Inspect deployed resources / Bicep; confirm region and single scoped firewall rule. |
 | **AC-10** | Over a representative period of light, intermittent querying, the database incurs **no compute charge** beyond the free-tier allowance (idle auto-pause observed). | NFR-5 | Review Azure cost report against `azure/DEPLOY.md` expectations. |
+| **AC-11** | The analytics views return a coherent funnel: overall win rate = Won / (Won + Lost) ≈ **34%** over the sample, and per-channel win rates differ by source. | FR-17, FR-19 | `SELECT * FROM vKpiSummary;` and `SELECT * FROM vLeadSourceRoi;` — confirm rates. |
+| **AC-12** | `vLeadSourceRoi` ranks **Referral highest in won value at $0 spend** (organic) and computes an ROI multiple for each paid channel, exposing the lowest-ROI paid channel as the reallocation candidate. | FR-18, FR-19 | Query `vLeadSourceRoi`; confirm Referral organic and ROI ordering. |
+| **AC-13** | The dashboard renders KPI cards, the lead-source ROI table, sales-by-person, and the monthly chart from the analytics views, and prints the auto-generated insight line. | FR-20 | Load the dashboard against seeded data; confirm every section populates. |
+| **AC-14** | With no connection string set, the dashboard loads and shows the "connect a database" banner instead of throwing. | FR-21 | Run the app with `ConnectionStrings__YpywDatabase` unset; confirm the banner. |
 
 ---
 
@@ -271,12 +289,13 @@ in `vEstimatesClean`:
 | `Document Id` | `[Document Id]` | `INT` | `DocumentId` | `INT` |
 | `Client Name` | `[Client Name]` | `VARCHAR(500)` | `ClientName` | `VARCHAR` |
 | `Estimate Expires Date` | `[Estimate Expires Date]` | `NVARCHAR(50)` (raw text, often blank) | `EstimateExpiresDate` | `DATE` (`TRY_CONVERT`) |
-| `Status` | `[Status]` | `VARCHAR(50)` (e.g. `issued`) | `Status` | `VARCHAR` |
+| `Status` | `[Status]` | `VARCHAR(50)` (`Won`/`Lost`/`Pending` in the enriched sample) | `Status` | `VARCHAR` |
 | `Estimate Amount` | `[Estimate Amount]` | `NVARCHAR(50)` (e.g. `"$24,399.00"`) | `EstimateAmount` | `DECIMAL(12,2)` |
-| *(tag, not in CSV)* | `SalesPersonId` | `INT NULL` FK | `SalesPersonId` | `INT` |
-| *(tag, not in CSV)* | `LeadSourceId` | `INT NULL` FK | `LeadSourceId` | `INT` |
+| `SalesPersonId` *(enriched)* | `SalesPersonId` | `INT NULL` FK | `SalesPersonId` | `INT` |
+| `LeadSourceId` *(enriched)* | `LeadSourceId` | `INT NULL` FK | `LeadSourceId` | `INT` |
 | *(surrogate key)* | `EstimateRowId` | `INT IDENTITY` PK | `EstimateRowId` | `INT` |
 
 > **Note:** the bundled `sample_estimates.csv` is synthetic — randomly generated
 > names and amounts that mirror the real schema but contain no actual client
-> data.
+> data — and is enriched by `generate_sample_data.py` with status, salesperson,
+> lead source, and dates (original amounts preserved, ~$7.38M total).

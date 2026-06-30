@@ -1,16 +1,26 @@
-﻿@page "/estimates"
+@page "/estimates"
 @using CPA.Shared.Models
 @using CPA.Shared.Services
 @inject EstimateService EstimateService
 
-<h3>Painting Jobs Manager</h3>
+<PageTitle>YPYW · Estimates</PageTitle>
 
-@if (estimates == null)
+<h3>All Estimates</h3>
+
+@if (loading)
 {
-    <p><em>Loading data from SQL Server...</em></p>
+    <p><em>Loading…</em></p>
+}
+else if (loadError is not null)
+{
+    <p class="text-muted">
+        No database connected — provision with <code>azure/deploy.ps1</code>, seed with
+        <code>python azure/seed_sample_data.py</code>, and set <code>ConnectionStrings__YpywDatabase</code>.
+    </p>
 }
 else
 {
+    <p class="text-muted">@estimates!.Count estimates</p>
     <table class="table">
         <thead>
             <tr>
@@ -36,9 +46,22 @@ else
 
 @code {
     private List<Estimate>? estimates;
+    private bool loading = true;
+    private string? loadError;
 
     protected override async Task OnInitializedAsync()
     {
-        estimates = await EstimateService.GetEstimatesAsync();
+        try
+        {
+            estimates = await EstimateService.GetEstimatesAsync();
+        }
+        catch (Exception ex)
+        {
+            loadError = ex.Message;
+        }
+        finally
+        {
+            loading = false;
+        }
     }
 }

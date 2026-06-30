@@ -1,14 +1,196 @@
-﻿@page "/"
+@page "/"
+@using CPA.Shared.Models
 @using CPA.Shared.Services
-@inject IFormFactor FormFactor
+@inject EstimateService EstimateService
 
-<PageTitle>Home</PageTitle>
+<PageTitle>YPYW · Business Intelligence</PageTitle>
 
-<h1>Hello, world!</h1>
+<div class="bi-dash">
+    <header class="bi-head">
+        <h1>YourPaintingYourWay — Business Intelligence</h1>
+        <p class="bi-sub">Estimate pipeline, conversion, and marketing ROI at a glance.</p>
+    </header>
 
-Welcome to your new app running on <em>@factor</em> using <em>@platform</em>.
+    @if (loading)
+    {
+        <p><em>Loading analytics…</em></p>
+    }
+    else if (loadError is not null)
+    {
+        <div class="bi-banner">
+            <strong>Dashboard is live, but no database is connected.</strong>
+            <span>@loadError</span>
+            <span>Provision and seed it with <code>azure/deploy.ps1</code> then
+                  <code>python azure/seed_sample_data.py</code>, and set
+                  <code>ConnectionStrings__YpywDatabase</code>.</span>
+        </div>
+    }
+    else
+    {
+        <section class="bi-kpis">
+            <div class="kpi"><span class="kpi-val">@kpi!.TotalEstimates.ToString("N0")</span><span class="kpi-lbl">Estimates</span></div>
+            <div class="kpi"><span class="kpi-val">@kpi.TotalPipeline.ToString("C0")</span><span class="kpi-lbl">Total Pipeline</span></div>
+            <div class="kpi"><span class="kpi-val">@kpi.WonValue.ToString("C0")</span><span class="kpi-lbl">Won Value</span></div>
+            <div class="kpi"><span class="kpi-val">@Pct(kpi.WinRate)</span><span class="kpi-lbl">Win Rate</span></div>
+            <div class="kpi"><span class="kpi-val">@((kpi.AvgDeal ?? 0).ToString("C0"))</span><span class="kpi-lbl">Avg Deal</span></div>
+        </section>
+
+        <section class="bi-grid">
+            <div class="bi-card">
+                <h2>Lead-source ROI</h2>
+                <table class="bi-table">
+                    <thead>
+                        <tr><th>Channel</th><th>Leads</th><th>Win&nbsp;Rate</th><th>Won&nbsp;Value</th><th>Spend</th><th>ROI</th></tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var r in roi)
+                        {
+                            <tr>
+                                <td>
+                                    <div class="bar-cell">
+                                        <span>@r.LeadSource</span>
+                                        <div class="bar"><div class="bar-fill" style="width:@BarPct(r.WonValue, maxWon)%"></div></div>
+                                    </div>
+                                </td>
+                                <td>@r.Leads</td>
+                                <td>@Pct(r.WinRate)</td>
+                                <td>@r.WonValue.ToString("C0")</td>
+                                <td>@r.MarketingCost.ToString("C0")</td>
+                                <td>@(r.RoiMultiple is null ? "organic" : r.RoiMultiple.Value.ToString("0.#") + "×")</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+                <p class="bi-note">@RoiInsight()</p>
+            </div>
+
+            <div class="bi-card">
+                <h2>Sales by team member</h2>
+                <table class="bi-table">
+                    <thead><tr><th>Salesperson</th><th>Deals</th><th>Win&nbsp;Rate</th><th>Won&nbsp;Value</th></tr></thead>
+                    <tbody>
+                        @foreach (var s in sales)
+                        {
+                            <tr>
+                                <td>@s.SalesPerson</td>
+                                <td>@s.Deals</td>
+                                <td>@Pct(s.WinRate)</td>
+                                <td>@s.WonValue.ToString("C0")</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="bi-card bi-card-wide">
+                <h2>Monthly pipeline (2025)</h2>
+                @if (trend.Count > 0)
+                {
+                    <svg class="bi-chart" viewBox="0 0 @(trend.Count * 44) 120" preserveAspectRatio="none" role="img" aria-label="Monthly pipeline bar chart">
+                        @{ var maxPipe = trend.Max(t => t.Pipeline); }
+                        @for (int i = 0; i < trend.Count; i++)
+                        {
+                            var t = trend[i];
+                            var h = maxPipe == 0 ? 0 : (double)(t.Pipeline / maxPipe) * 110;
+                            var wonH = maxPipe == 0 ? 0 : (double)(t.WonValue / maxPipe) * 110;
+                            var x = i * 44 + 8;
+                            <rect x="@x" y="@(115 - h)" width="26" height="@h" rx="2" class="bar-pipe"></rect>
+                            <rect x="@x" y="@(115 - wonH)" width="26" height="@wonH" rx="2" class="bar-won"></rect>
+                        }
+                    </svg>
+                    <div class="bi-axis">
+                        @foreach (var t in trend)
+                        {
+                            <span>@MonthLabel(t.Month)</span>
+                        }
+                    </div>
+                    <p class="bi-note"><span class="swatch swatch-pipe"></span>Total pipeline&nbsp;&nbsp;<span class="swatch swatch-won"></span>Won</p>
+                }
+            </div>
+        </section>
+    }
+</div>
 
 @code {
-    private string factor => FormFactor.GetFormFactor();
-    private string platform => FormFactor.GetPlatform();
+    private bool loading = true;
+    private string? loadError;
+
+    private KpiSummary? kpi;
+    private List<LeadSourceRoi> roi = new();
+    private List<SalesByPerson> sales = new();
+    private List<MonthlyTrend> trend = new();
+    private decimal maxWon = 1;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            kpi = await EstimateService.GetKpiSummaryAsync();
+            roi = await EstimateService.GetLeadSourceRoiAsync();
+            sales = await EstimateService.GetSalesByPersonAsync();
+            trend = await EstimateService.GetMonthlyTrendAsync();
+            maxWon = roi.Count > 0 ? Math.Max(1m, roi.Max(r => r.WonValue)) : 1m;
+        }
+        catch (Exception ex)
+        {
+            loadError = ex.Message;
+        }
+        finally
+        {
+            loading = false;
+        }
+    }
+
+    private static string Pct(decimal? v) => v is null ? "—" : (v.Value * 100).ToString("0.#") + "%";
+
+    private static string BarPct(decimal value, decimal max)
+        => max <= 0 ? "0" : ((double)(value / max) * 100).ToString("0");
+
+    private static string MonthLabel(string? ym)
+        => string.IsNullOrEmpty(ym) || ym.Length < 7 ? ym ?? "" : ym.Substring(5);
+
+    private string RoiInsight()
+    {
+        if (roi.Count == 0) return string.Empty;
+        var organic = roi.Where(r => r.RoiMultiple is null).OrderByDescending(r => r.WonValue).FirstOrDefault();
+        var bestPaid = roi.Where(r => r.RoiMultiple is not null).OrderByDescending(r => r.RoiMultiple).FirstOrDefault();
+        var worstPaid = roi.Where(r => r.RoiMultiple is not null).OrderBy(r => r.RoiMultiple).FirstOrDefault();
+        if (organic is not null && worstPaid is not null)
+            return $"Insight: {organic.LeadSource} is the highest-value channel at $0 spend, while {worstPaid.LeadSource} "
+                 + $"returns only {worstPaid.RoiMultiple:0.#}× on its marketing cost — the clearest place to reallocate budget.";
+        if (bestPaid is not null) return $"Insight: {bestPaid.LeadSource} delivers the strongest paid ROI at {bestPaid.RoiMultiple:0.#}×.";
+        return string.Empty;
+    }
 }
+
+<style>
+    .bi-dash { max-width: 1000px; }
+    .bi-head h1 { font-size: 1.5rem; margin: 0; }
+    .bi-sub { color: #6b7280; margin: .15rem 0 1rem; }
+    .bi-banner { background: #fff7ed; border: 1px solid #fed7aa; border-radius: 8px; padding: .75rem 1rem;
+                 display: flex; flex-direction: column; gap: .25rem; color: #7c2d12; font-size: .9rem; }
+    .bi-kpis { display: grid; grid-template-columns: repeat(5, 1fr); gap: .75rem; margin-bottom: 1rem; }
+    .kpi { background: #fff; border: 1px solid #e5e7eb; border-radius: 10px; padding: .8rem .9rem;
+           display: flex; flex-direction: column; box-shadow: 0 1px 2px rgba(0,0,0,.04); }
+    .kpi-val { font-size: 1.35rem; font-weight: 700; color: #1f3864; line-height: 1.1; }
+    .kpi-lbl { font-size: .72rem; text-transform: uppercase; letter-spacing: .04em; color: #6b7280; margin-top: .2rem; }
+    .bi-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+    .bi-card { background: #fff; border: 1px solid #e5e7eb; border-radius: 10px; padding: 1rem; box-shadow: 0 1px 2px rgba(0,0,0,.04); }
+    .bi-card-wide { grid-column: 1 / -1; }
+    .bi-card h2 { font-size: 1rem; margin: 0 0 .6rem; color: #111827; }
+    .bi-table { width: 100%; border-collapse: collapse; font-size: .85rem; }
+    .bi-table th { text-align: left; color: #6b7280; font-weight: 600; border-bottom: 1px solid #e5e7eb; padding: .3rem .4rem; }
+    .bi-table td { padding: .35rem .4rem; border-bottom: 1px solid #f3f4f6; }
+    .bar-cell { display: flex; flex-direction: column; gap: 3px; min-width: 130px; }
+    .bar { background: #eef2ff; border-radius: 4px; height: 6px; overflow: hidden; }
+    .bar-fill { background: #4f46e5; height: 6px; }
+    .bi-note { font-size: .8rem; color: #4b5563; margin: .6rem 0 0; }
+    .bi-chart { width: 100%; height: 160px; }
+    .bar-pipe { fill: #c7d2fe; }
+    .bar-won { fill: #4f46e5; }
+    .bi-axis { display: flex; justify-content: space-between; padding: 2px 8px 0; }
+    .bi-axis span { flex: 1; text-align: center; font-size: .68rem; color: #9ca3af; }
+    .swatch { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin: 0 4px 0 8px; vertical-align: middle; }
+    .swatch-pipe { background: #c7d2fe; }
+    .swatch-won { background: #4f46e5; }
+</style>

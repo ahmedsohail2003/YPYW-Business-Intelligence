@@ -2,7 +2,7 @@
 
 A full-stack business intelligence platform built for **YourPaintingYourWay**, a high-volume residential painting company in the GTA. The system automates data ingestion from client estimate exports and surfaces business metrics through a web dashboard.
 
-> **Note on Data:** The included `sample_estimates.csv` is a **synthetic dataset** with randomly generated names and amounts. It mirrors the schema of the real source data (500+ client estimates) seen during development but contains no actual client information.
+> **Note on Data:** The included `sample_estimates.csv` is a **synthetic dataset** with randomly generated names and amounts. It mirrors the schema of the real source data (500+ client estimates) seen during development but contains no actual client information. `azure/generate_sample_data.py` then enriches it (seeded and reproducible) with synthetic sales-funnel status, salesperson, lead source, and estimate dates so the analytics layer has meaningful dimensions to report on — while preserving the original amounts (~$7.38M total).
 
 ## Architecture
 
@@ -44,14 +44,22 @@ The production/Azure schema lives at `azure/schema.sql`. A non-runnable legacy S
 - `MarketingCosts` — Monthly advertising spend per channel for ROI analysis
 - `vEstimatesClean` — Typed view that parses raw currency text (`$24,399.00` → `DECIMAL`) and date text → `DATE` via `TRY_CONVERT`; reporting should read from this view
 
+**Analytics views** (the reporting layer the dashboard reads from, all built over `vEstimatesClean`):
+- `vKpiSummary` — single-row KPIs: total estimates, total pipeline, won value, win rate, average deal size
+- `vLeadSourceRoi` — per channel: leads, won value, marketing spend, win rate, and ROI multiple (won ÷ spend)
+- `vSalesByPerson` — deals, won value, and win rate per salesperson
+- `vMonthlyTrend` — estimate count and pipeline value by month
+
 The schema runs on **Azure SQL Database** (free serverless tier) rather than
 LocalDB — see [Cloud Deployment (Azure)](#cloud-deployment-azure) below.
 
 ### 3. .NET Blazor Frontend (`CPA/`)
 - Blazor Hybrid app targeting web, Android, iOS, Mac, and Windows
-- `Estimate.cs` — Data model mapping to SQL columns
-- `EstimateService.cs` — Service layer using Dapper ORM for async database queries
-- `Estimates.razor` — Dashboard page displaying estimate data
+- `Home.razor` — **BI dashboard**: KPI cards (estimates, pipeline, won value, win rate, avg deal), a lead-source ROI table with inline bars, a sales-by-person breakdown, and a monthly pipeline chart (inline SVG, no chart library). Reads the analytics views via Dapper and surfaces the headline insight automatically (highest-value channel vs. lowest paid ROI).
+- `Estimates.razor` — detail page listing every estimate
+- `EstimateService.cs` — service layer; async Dapper queries against the analytics views
+- `Models/Estimate.cs`, `Models/Analytics.cs` — DTOs mapped to the view columns
+- Degrades gracefully: if no database is configured, the dashboard renders a clear "connect a database" banner instead of erroring
 
 ## Tech Stack
 - **Backend:** Python 3, watchdog, pandas, SQLAlchemy
@@ -81,6 +89,12 @@ The watcher creates a `DropZone/` folder (under `ypyw_clean/YourPaintingYourWay/
 cd ypyw_clean/CPA/CPA/CPA.Web
 dotnet run
 ```
+
+> **Connection string:** the app reads `ConnectionStrings:YpywDatabase` (e.g. the
+> environment variable `ConnectionStrings__YpywDatabase`). Point it at the Azure
+> database provisioned by `azure/deploy.ps1`, or at a local SQL Server / LocalDB
+> instance after applying `azure/schema.sql`. With no connection string set, the
+> dashboard still loads and shows a "connect a database" banner instead of erroring.
 
 ## Cloud Deployment (Azure)
 
@@ -136,8 +150,9 @@ fully managed **Azure SQL Database**, deployed as reproducible
   [`azure/DEPLOY.md`](azure/DEPLOY.md) for the full cost breakdown and runbook.
 
 ## Status
-This project is in active development (~60% complete). A raw-to-clean
-transformation layer (currency/date parsing via `vEstimatesClean`) is already
-shipped and verified. Current work focuses on expanding the Blazor dashboard
-with CRUD operations, pointing the dashboard's queries at `vEstimatesClean`, and
-wiring up lead source attribution for marketing ROI analysis.
+Active development. Shipped and verified end to end (schema → seed → views →
+dashboard): the raw-to-clean transformation layer (`vEstimatesClean`), the
+analytics views (`vKpiSummary`, `vLeadSourceRoi`, `vSalesByPerson`,
+`vMonthlyTrend`), and the Blazor BI dashboard that reads them and surfaces
+lead-source ROI, win rate, and monthly pipeline trend. Current work focuses on
+CRUD on the estimates page and drill-downs from the dashboard cards.
