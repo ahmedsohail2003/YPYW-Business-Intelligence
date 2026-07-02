@@ -4,6 +4,14 @@ A full-stack business intelligence platform built for **YourPaintingYourWay**, a
 
 > **Note on Data:** The included `sample_estimates.csv` is a **synthetic dataset** with randomly generated names and amounts. It mirrors the schema of the real source data (500+ client estimates) seen during development but contains no actual client information. `azure/generate_sample_data.py` then enriches it (seeded and reproducible) with synthetic sales-funnel status, salesperson, lead source, and estimate dates so the analytics layer has meaningful dimensions to report on — while preserving the original amounts (~$7.38M total).
 
+## Dashboard Preview
+
+[![Business intelligence dashboard populated with privacy-safe synthetic data](docs/dashboard-preview.svg)](docs/dashboard-preview.html)
+
+The preview is generated from the repository's fixed-seed 500-row synthetic dataset.
+It demonstrates the implemented KPI, lead-source ROI, sales attribution, and monthly trend
+experience without exposing client data or presenting generated ROI as verified business impact.
+
 ## Architecture
 
 ```
