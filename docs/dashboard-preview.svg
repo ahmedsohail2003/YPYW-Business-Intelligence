@@ -1,0 +1,124 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="760" viewBox="0 0 1200 760" role="img" aria-labelledby="title desc">
+  <title id="title">YourPaintingYourWay business intelligence dashboard</title>
+  <desc id="desc">Static portfolio preview populated from the repository's 500-row privacy-safe synthetic dataset.</desc>
+  <defs>
+    <linearGradient id="pipelineArea" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#2563eb" stop-opacity=".25"/>
+      <stop offset="1" stop-color="#2563eb" stop-opacity="0"/>
+    </linearGradient>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="150%">
+      <feDropShadow dx="0" dy="4" stdDeviation="7" flood-color="#162a46" flood-opacity=".08"/>
+    </filter>
+    <style>
+      .bg{fill:#f4f7fb}.nav{fill:#162a46}.panel{fill:#fff;stroke:#e1e7ef;stroke-width:1;filter:url(#shadow)}
+      .h1{font:700 27px Inter,Segoe UI,sans-serif;fill:#162a46}.h2{font:700 17px Inter,Segoe UI,sans-serif;fill:#162a46}
+      .brand{font:700 18px Inter,Segoe UI,sans-serif;fill:#fff}.tag{font:700 10px Inter,Segoe UI,sans-serif;fill:#bae6fd;letter-spacing:1px}
+      .sub{font:400 13px Inter,Segoe UI,sans-serif;fill:#657085}.kpi{font:750 25px Inter,Segoe UI,sans-serif;fill:#162a46}
+      .label{font:650 11px Inter,Segoe UI,sans-serif;fill:#657085}.th{font:700 9px Inter,Segoe UI,sans-serif;fill:#657085;letter-spacing:.7px}
+      .td{font:500 11px Inter,Segoe UI,sans-serif;fill:#202a3c}.tdb{font:700 11px Inter,Segoe UI,sans-serif;fill:#202a3c}
+      .small{font:500 9px Inter,Segoe UI,sans-serif;fill:#657085}.axis{stroke:#dce3ec;stroke-width:1}.grid{stroke:#e9edf3;stroke-width:1}
+      .pipe{fill:none;stroke:#2563eb;stroke-width:3}.won{fill:none;stroke:#059669;stroke-width:3}
+    </style>
+  </defs>
+
+  <rect class="bg" width="1200" height="760"/>
+  <rect class="nav" width="1200" height="60"/>
+  <text class="brand" x="34" y="37">YourPaintingYourWay <tspan fill="#7dd3fc">BI</tspan></text>
+  <rect x="978" y="18" width="188" height="25" rx="13" fill="none" stroke="#64748b"/>
+  <text class="tag" x="997" y="35">SYNTHETIC DEMO DATA</text>
+
+  <text class="h1" x="34" y="101">Business Intelligence Dashboard</text>
+  <text class="sub" x="34" y="124">Estimate pipeline, conversion, and marketing ROI at a glance</text>
+  <text class="small" x="1166" y="101" text-anchor="end">500 seeded synthetic estimates</text>
+  <text class="small" x="1166" y="116" text-anchor="end">No client data shown</text>
+
+  <g transform="translate(34 145)">
+    <rect class="panel" width="214" height="82" rx="11"/>
+    <text class="kpi" x="17" y="38">500</text><text class="label" x="17" y="60">Estimates</text>
+  </g>
+  <g transform="translate(264 145)">
+    <rect class="panel" width="214" height="82" rx="11"/>
+    <text class="kpi" x="17" y="38">$7.38M</text><text class="label" x="17" y="60">Total pipeline</text>
+  </g>
+  <g transform="translate(494 145)">
+    <rect class="panel" width="214" height="82" rx="11"/>
+    <text class="kpi" x="17" y="38">$2.40M</text><text class="label" x="17" y="60">Won value</text>
+  </g>
+  <g transform="translate(724 145)">
+    <rect class="panel" width="214" height="82" rx="11"/>
+    <text class="kpi" x="17" y="38">34.4%</text><text class="label" x="17" y="60">Win rate</text>
+  </g>
+  <g transform="translate(954 145)">
+    <rect class="panel" width="212" height="82" rx="11"/>
+    <text class="kpi" x="17" y="38">$14.8K</text><text class="label" x="17" y="60">Average estimate</text>
+  </g>
+
+  <g transform="translate(34 245)">
+    <rect class="panel" width="735" height="307" rx="12"/>
+    <text class="h2" x="20" y="31">Lead-source ROI</text>
+    <text class="th" x="20" y="57">CHANNEL</text><text class="th" x="365" y="57" text-anchor="end">LEADS</text>
+    <text class="th" x="449" y="57" text-anchor="end">WIN RATE</text><text class="th" x="560" y="57" text-anchor="end">WON VALUE</text>
+    <text class="th" x="646" y="57" text-anchor="end">SPEND</text><text class="th" x="714" y="57" text-anchor="end">ROI</text>
+    <line class="axis" x1="20" x2="715" y1="69" y2="69"/>
+
+    <g transform="translate(0 84)">
+      <text class="tdb" x="20" y="11">Referral</text><rect x="105" y="3" width="90" height="7" rx="4" fill="#edf2f7"/><rect x="105" y="3" width="90" height="7" rx="4" fill="#2563eb"/>
+      <text class="td" x="365" y="11" text-anchor="end">119</text><text class="td" x="449" y="11" text-anchor="end">50.0%</text>
+      <text class="td" x="560" y="11" text-anchor="end">$820,148</text><text class="td" x="646" y="11" text-anchor="end">$0</text><text x="714" y="11" text-anchor="end" style="font:700 11px Inter,Segoe UI,sans-serif;fill:#059669">Organic</text>
+    </g>
+    <line class="grid" x1="20" x2="715" y1="111" y2="111"/>
+    <g transform="translate(0 126)">
+      <text class="tdb" x="20" y="11">Google Ads</text><rect x="105" y="3" width="90" height="7" rx="4" fill="#edf2f7"/><rect x="105" y="3" width="57" height="7" rx="4" fill="#2563eb"/>
+      <text class="td" x="365" y="11" text-anchor="end">123</text><text class="td" x="449" y="11" text-anchor="end">27.7%</text>
+      <text class="td" x="560" y="11" text-anchor="end">$520,376</text><text class="td" x="646" y="11" text-anchor="end">$7,200</text><text class="td" x="714" y="11" text-anchor="end">72.3x</text>
+    </g>
+    <line class="grid" x1="20" x2="715" y1="153" y2="153"/>
+    <g transform="translate(0 168)">
+      <text class="tdb" x="20" y="11">Homestars</text><rect x="105" y="3" width="90" height="7" rx="4" fill="#edf2f7"/><rect x="105" y="3" width="54" height="7" rx="4" fill="#2563eb"/>
+      <text class="td" x="365" y="11" text-anchor="end">96</text><text class="td" x="449" y="11" text-anchor="end">43.7%</text>
+      <text class="td" x="560" y="11" text-anchor="end">$495,380</text><text class="td" x="646" y="11" text-anchor="end">$3,600</text><text class="td" x="714" y="11" text-anchor="end">137.6x</text>
+    </g>
+    <line class="grid" x1="20" x2="715" y1="195" y2="195"/>
+    <g transform="translate(0 210)">
+      <text class="tdb" x="20" y="11">Facebook</text><rect x="105" y="3" width="90" height="7" rx="4" fill="#edf2f7"/><rect x="105" y="3" width="32" height="7" rx="4" fill="#2563eb"/>
+      <text class="td" x="365" y="11" text-anchor="end">86</text><text class="td" x="449" y="11" text-anchor="end">24.7%</text>
+      <text class="td" x="560" y="11" text-anchor="end">$295,789</text><text class="td" x="646" y="11" text-anchor="end">$3,000</text><text class="td" x="714" y="11" text-anchor="end">98.6x</text>
+    </g>
+    <line class="grid" x1="20" x2="715" y1="237" y2="237"/>
+    <g transform="translate(0 252)">
+      <text class="tdb" x="20" y="11">Bark</text><rect x="105" y="3" width="90" height="7" rx="4" fill="#edf2f7"/><rect x="105" y="3" width="30" height="7" rx="4" fill="#2563eb"/>
+      <text class="td" x="365" y="11" text-anchor="end">76</text><text class="td" x="449" y="11" text-anchor="end">20.5%</text>
+      <text class="td" x="560" y="11" text-anchor="end">$272,109</text><text class="td" x="646" y="11" text-anchor="end">$2,400</text><text class="td" x="714" y="11" text-anchor="end">113.4x</text>
+    </g>
+    <rect x="20" y="276" width="695" height="19" rx="5" fill="#ffedd5"/>
+    <text x="29" y="289" style="font:600 9px Inter,Segoe UI,sans-serif;fill:#8a3b12">Synthetic-data insight: Referral leads won value; Google Ads has the lowest paid ROI in this generated scenario.</text>
+  </g>
+
+  <g transform="translate(786 245)">
+    <rect class="panel" width="380" height="307" rx="12"/>
+    <text class="h2" x="20" y="31">Sales attribution</text>
+    <text class="tdb" x="20" y="67">Sohail</text><text class="tdb" x="360" y="67" text-anchor="end">$1.48M won</text>
+    <text class="small" x="20" y="84">285 estimates · 37.0% win rate</text>
+    <rect x="20" y="99" width="340" height="8" rx="4" fill="#edf2f7"/><rect x="20" y="99" width="340" height="8" rx="4" fill="#059669"/>
+    <text class="tdb" x="20" y="139">Ansr</text><text class="tdb" x="360" y="139" text-anchor="end">$928K won</text>
+    <text class="small" x="20" y="156">215 estimates · 30.9% win rate</text>
+    <rect x="20" y="171" width="340" height="8" rx="4" fill="#edf2f7"/><rect x="20" y="171" width="214" height="8" rx="4" fill="#059669"/>
+    <line class="axis" x1="20" x2="360" y1="203" y2="203"/>
+    <text class="h2" x="20" y="231">Pipeline health</text>
+    <text class="small" x="20" y="256">Raw rows</text><text class="tdb" x="182" y="256" text-anchor="end">500</text>
+    <text class="small" x="205" y="256">Analytics views</text><text class="tdb" x="360" y="256" text-anchor="end">4</text>
+    <text class="small" x="20" y="280">Parsed total</text><text class="tdb" x="182" y="280" text-anchor="end">$7.38M</text>
+    <text class="small" x="205" y="280">Azure region</text><text class="tdb" x="360" y="280" text-anchor="end">Canada Central</text>
+  </g>
+
+  <g transform="translate(34 570)">
+    <rect class="panel" width="1132" height="155" rx="12"/>
+    <text class="h2" x="20" y="29">Monthly pipeline and won value</text>
+    <line class="grid" x1="43" x2="1110" y1="54" y2="54"/><line class="grid" x1="43" x2="1110" y1="91" y2="91"/><line class="axis" x1="43" x2="1110" y1="121" y2="121"/>
+    <path fill="url(#pipelineArea)" d="M48 102 L143 107 L238 72 L333 86 L428 47 L523 43 L618 31 L713 44 L808 74 L903 88 L998 110 L1093 98 L1093 121 L48 121Z"/>
+    <path class="pipe" d="M48 102 L143 107 L238 72 L333 86 L428 47 L523 43 L618 31 L713 44 L808 74 L903 88 L998 110 L1093 98"/>
+    <path class="won" d="M48 117 L143 115 L238 104 L333 106 L428 93 L523 76 L618 80 L713 81 L808 105 L903 105 L998 112 L1093 117"/>
+    <g class="small" text-anchor="middle"><text x="48" y="140">Jan</text><text x="143" y="140">Feb</text><text x="238" y="140">Mar</text><text x="333" y="140">Apr</text><text x="428" y="140">May</text><text x="523" y="140">Jun</text><text x="618" y="140">Jul</text><text x="713" y="140">Aug</text><text x="808" y="140">Sep</text><text x="903" y="140">Oct</text><text x="998" y="140">Nov</text><text x="1093" y="140">Dec</text></g>
+  </g>
+  <text class="small" x="34" y="746">Static preview generated from the fixed-seed synthetic dataset · Values are demonstrative, not verified business outcomes</text>
+</svg>

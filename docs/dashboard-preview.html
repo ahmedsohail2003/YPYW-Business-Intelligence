@@ -1,0 +1,269 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>YPYW Business Intelligence - Synthetic Demo</title>
+  <style>
+    :root {
+      --navy: #162a46;
+      --blue: #2563eb;
+      --blue-soft: #dbeafe;
+      --green: #059669;
+      --green-soft: #d1fae5;
+      --orange: #ea580c;
+      --orange-soft: #ffedd5;
+      --ink: #172033;
+      --muted: #657085;
+      --line: #e5eaf1;
+      --panel: #ffffff;
+      --page: #f4f7fb;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      color: var(--ink);
+      background: var(--page);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+    }
+
+    .shell {
+      width: 100%;
+      max-width: 1400px;
+      min-height: 900px;
+      margin: 0 auto;
+      background: var(--page);
+    }
+
+    .topbar {
+      height: 68px;
+      padding: 0 38px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      color: white;
+      background: var(--navy);
+    }
+
+    .brand { font-weight: 750; letter-spacing: .01em; }
+    .brand span { color: #7dd3fc; }
+
+    .demo-tag {
+      padding: 7px 12px;
+      border: 1px solid rgba(255,255,255,.3);
+      border-radius: 999px;
+      color: #e0f2fe;
+      font-size: 12px;
+      font-weight: 650;
+      letter-spacing: .04em;
+      text-transform: uppercase;
+    }
+
+    main { padding: 30px 38px 42px; }
+
+    .heading {
+      display: flex;
+      justify-content: space-between;
+      align-items: end;
+      margin-bottom: 18px;
+    }
+
+    h1 { margin: 0; color: var(--navy); font-size: 28px; letter-spacing: -.025em; }
+    .subtitle { margin: 5px 0 0; color: var(--muted); font-size: 14px; }
+    .dataset { color: var(--muted); font-size: 12px; text-align: right; }
+
+    .kpis {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 14px;
+      margin-bottom: 16px;
+    }
+
+    .kpi, .card {
+      min-width: 0;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      box-shadow: 0 6px 18px rgba(26, 42, 70, .045);
+    }
+
+    .kpi { padding: 17px 18px 15px; }
+    .kpi-value { color: var(--navy); font-size: 26px; font-weight: 760; letter-spacing: -.025em; }
+    .kpi-label { margin-top: 4px; color: var(--muted); font-size: 12px; font-weight: 650; }
+
+    .grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.45fr) minmax(0, .9fr);
+      gap: 16px;
+    }
+
+    .card { padding: 19px 20px; }
+    .card h2 { margin: 0 0 15px; color: var(--navy); font-size: 17px; }
+
+    table { width: 100%; border-collapse: collapse; font-size: 12px; table-layout: fixed; }
+    th {
+      padding: 0 7px 9px;
+      color: var(--muted);
+      font-size: 10px;
+      font-weight: 750;
+      letter-spacing: .055em;
+      text-align: right;
+      text-transform: uppercase;
+      border-bottom: 1px solid var(--line);
+    }
+    th:first-child, td:first-child { text-align: left; }
+    td { padding: 10px 7px; text-align: right; border-bottom: 1px solid #eef1f5; }
+    tr:last-child td { border-bottom: 0; }
+
+    .channel {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-weight: 650;
+    }
+    .bar-track { width: 64px; height: 7px; overflow: hidden; background: #edf2f7; border-radius: 99px; }
+    .bar { height: 100%; background: var(--blue); border-radius: 99px; }
+    .organic { color: var(--green); font-weight: 700; }
+
+    .insight {
+      margin-top: 13px;
+      padding: 11px 13px;
+      border-left: 4px solid var(--orange);
+      border-radius: 7px;
+      color: #8a3b12;
+      background: var(--orange-soft);
+      font-size: 12px;
+      line-height: 1.45;
+    }
+
+    .side-stack { display: grid; gap: 16px; }
+
+    .sales-row { display: grid; grid-template-columns: 1fr auto; gap: 5px 14px; margin-bottom: 14px; }
+    .sales-row:last-child { margin-bottom: 0; }
+    .sales-name { font-weight: 700; }
+    .sales-value { font-weight: 700; text-align: right; }
+    .sales-meta { color: var(--muted); font-size: 11px; }
+    .sales-track { grid-column: 1 / -1; height: 8px; overflow: hidden; background: #edf2f7; border-radius: 99px; }
+    .sales-fill { height: 100%; background: var(--green); border-radius: 99px; }
+
+    .trend { grid-column: 1 / -1; }
+    .chart-wrap { position: relative; height: 238px; }
+    svg { width: 100%; height: 100%; overflow: visible; }
+    .axis { stroke: #d8dee8; stroke-width: 1; }
+    .gridline { stroke: #e9edf3; stroke-width: 1; }
+    .area { fill: url(#area); }
+    .line { fill: none; stroke: var(--blue); stroke-width: 3; }
+    .won-line { fill: none; stroke: var(--green); stroke-width: 3; }
+    .point { fill: white; stroke: var(--blue); stroke-width: 2; }
+    .won-point { fill: white; stroke: var(--green); stroke-width: 2; }
+    .month { fill: var(--muted); font-size: 10px; text-anchor: middle; }
+    .legend { display: flex; gap: 18px; margin-top: 5px; color: var(--muted); font-size: 11px; }
+    .swatch { display: inline-block; width: 18px; height: 3px; margin-right: 6px; vertical-align: middle; border-radius: 99px; }
+    .footnote { margin-top: 14px; color: var(--muted); font-size: 11px; }
+
+    @media (max-width: 800px) {
+      .topbar { padding: 0 24px; }
+      main { padding: 26px 24px 36px; }
+      .heading { align-items: start; }
+      .kpis { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+      .grid { grid-template-columns: minmax(0, 1fr); }
+      .side-stack { grid-template-columns: 1fr 1fr; }
+      .trend { grid-column: 1; }
+      .chart-wrap { height: 210px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <header class="topbar">
+      <div class="brand">YourPaintingYourWay <span>BI</span></div>
+      <div class="demo-tag">Privacy-safe synthetic demo</div>
+    </header>
+
+    <main>
+      <section class="heading">
+        <div>
+          <h1>Business Intelligence Dashboard</h1>
+          <p class="subtitle">Estimate pipeline, conversion, and marketing ROI at a glance</p>
+        </div>
+        <div class="dataset">500 synthetic estimates<br>Seeded and reproducible</div>
+      </section>
+
+      <section class="kpis">
+        <article class="kpi"><div class="kpi-value">500</div><div class="kpi-label">Estimates</div></article>
+        <article class="kpi"><div class="kpi-value">$7.38M</div><div class="kpi-label">Total pipeline</div></article>
+        <article class="kpi"><div class="kpi-value">$2.40M</div><div class="kpi-label">Won value</div></article>
+        <article class="kpi"><div class="kpi-value">34.4%</div><div class="kpi-label">Win rate</div></article>
+        <article class="kpi"><div class="kpi-value">$14.8K</div><div class="kpi-label">Average estimate</div></article>
+      </section>
+
+      <section class="grid">
+        <article class="card">
+          <h2>Lead-source ROI</h2>
+          <table>
+            <thead>
+              <tr><th>Channel</th><th>Leads</th><th>Win rate</th><th>Won value</th><th>Spend</th><th>ROI</th></tr>
+            </thead>
+            <tbody>
+              <tr><td><div class="channel"><span>Referral</span><span class="bar-track"><span class="bar" style="width:100%"></span></span></div></td><td>119</td><td>50.0%</td><td>$820,148</td><td>$0</td><td class="organic">Organic</td></tr>
+              <tr><td><div class="channel"><span>Google Ads</span><span class="bar-track"><span class="bar" style="width:63%"></span></span></div></td><td>123</td><td>27.7%</td><td>$520,376</td><td>$7,200</td><td>72.3x</td></tr>
+              <tr><td><div class="channel"><span>Homestars</span><span class="bar-track"><span class="bar" style="width:60%"></span></span></div></td><td>96</td><td>43.7%</td><td>$495,380</td><td>$3,600</td><td>137.6x</td></tr>
+              <tr><td><div class="channel"><span>Facebook</span><span class="bar-track"><span class="bar" style="width:36%"></span></span></div></td><td>86</td><td>24.7%</td><td>$295,789</td><td>$3,000</td><td>98.6x</td></tr>
+              <tr><td><div class="channel"><span>Bark</span><span class="bar-track"><span class="bar" style="width:33%"></span></span></div></td><td>76</td><td>20.5%</td><td>$272,109</td><td>$2,400</td><td>113.4x</td></tr>
+            </tbody>
+          </table>
+          <div class="insight"><strong>Synthetic-data insight:</strong> Referral produces the highest won value at $0 spend, while Google Ads has the lowest paid ROI in this generated scenario.</div>
+        </article>
+
+        <div class="side-stack">
+          <article class="card">
+            <h2>Sales by person</h2>
+            <div class="sales-row">
+              <div class="sales-name">Sohail</div><div class="sales-value">$1.48M</div>
+              <div class="sales-meta">285 estimates · 37.0% win rate</div><div class="sales-meta">Won value</div>
+              <div class="sales-track"><div class="sales-fill" style="width:100%"></div></div>
+            </div>
+            <div class="sales-row">
+              <div class="sales-name">Ansr</div><div class="sales-value">$928K</div>
+              <div class="sales-meta">215 estimates · 30.9% win rate</div><div class="sales-meta">Won value</div>
+              <div class="sales-track"><div class="sales-fill" style="width:63%"></div></div>
+            </div>
+          </article>
+
+          <article class="card">
+            <h2>Data pipeline</h2>
+            <table>
+              <tbody>
+                <tr><td>Raw landing rows</td><td><strong>500</strong></td></tr>
+                <tr><td>Parsed amount total</td><td><strong>$7.38M</strong></td></tr>
+                <tr><td>Analytics views</td><td><strong>4</strong></td></tr>
+                <tr><td>Azure region</td><td><strong>Canada Central</strong></td></tr>
+              </tbody>
+            </table>
+          </article>
+        </div>
+
+        <article class="card trend">
+          <h2>Monthly pipeline and won value</h2>
+          <div class="chart-wrap">
+            <svg viewBox="0 0 1260 220" role="img" aria-label="Monthly pipeline chart for the synthetic dataset">
+              <defs><linearGradient id="area" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#2563eb" stop-opacity=".23"/><stop offset="100%" stop-color="#2563eb" stop-opacity="0"/></linearGradient></defs>
+              <line class="gridline" x1="45" y1="35" x2="1228" y2="35"/><line class="gridline" x1="45" y1="90" x2="1228" y2="90"/><line class="gridline" x1="45" y1="145" x2="1228" y2="145"/><line class="axis" x1="45" y1="185" x2="1228" y2="185"/>
+              <path class="area" d="M55,156 L160,164 L265,101 L370,125 L475,55 L580,48 L685,28 L790,50 L895,104 L1000,128 L1105,170 L1210,145 L1210,185 L55,185 Z"/>
+              <path class="line" d="M55,156 L160,164 L265,101 L370,125 L475,55 L580,48 L685,28 L790,50 L895,104 L1000,128 L1105,170 L1210,145"/>
+              <path class="won-line" d="M55,178 L160,176 L265,158 L370,162 L475,139 L580,113 L685,119 L790,121 L895,160 L1000,160 L1105,170 L1210,178"/>
+              <g><circle class="point" cx="55" cy="156" r="4"/><circle class="point" cx="160" cy="164" r="4"/><circle class="point" cx="265" cy="101" r="4"/><circle class="point" cx="370" cy="125" r="4"/><circle class="point" cx="475" cy="55" r="4"/><circle class="point" cx="580" cy="48" r="4"/><circle class="point" cx="685" cy="28" r="4"/><circle class="point" cx="790" cy="50" r="4"/><circle class="point" cx="895" cy="104" r="4"/><circle class="point" cx="1000" cy="128" r="4"/><circle class="point" cx="1105" cy="170" r="4"/><circle class="point" cx="1210" cy="145" r="4"/></g>
+              <g><circle class="won-point" cx="55" cy="178" r="3"/><circle class="won-point" cx="160" cy="176" r="3"/><circle class="won-point" cx="265" cy="158" r="3"/><circle class="won-point" cx="370" cy="162" r="3"/><circle class="won-point" cx="475" cy="139" r="3"/><circle class="won-point" cx="580" cy="113" r="3"/><circle class="won-point" cx="685" cy="119" r="3"/><circle class="won-point" cx="790" cy="121" r="3"/><circle class="won-point" cx="895" cy="160" r="3"/><circle class="won-point" cx="1000" cy="160" r="3"/><circle class="won-point" cx="1105" cy="170" r="3"/><circle class="won-point" cx="1210" cy="178" r="3"/></g>
+              <g><text class="month" x="55" y="207">Jan</text><text class="month" x="160" y="207">Feb</text><text class="month" x="265" y="207">Mar</text><text class="month" x="370" y="207">Apr</text><text class="month" x="475" y="207">May</text><text class="month" x="580" y="207">Jun</text><text class="month" x="685" y="207">Jul</text><text class="month" x="790" y="207">Aug</text><text class="month" x="895" y="207">Sep</text><text class="month" x="1000" y="207">Oct</text><text class="month" x="1105" y="207">Nov</text><text class="month" x="1210" y="207">Dec</text></g>
+            </svg>
+          </div>
+          <div class="legend"><span><span class="swatch" style="background:#2563eb"></span>Total pipeline</span><span><span class="swatch" style="background:#059669"></span>Won value</span></div>
+          <div class="footnote">Preview generated from the repository's fixed-seed synthetic dataset. No client data is shown.</div>
+        </article>
+      </section>
+    </main>
+  </div>
+</body>
+</html>
