@@ -164,3 +164,7 @@ analytics views (`vKpiSummary`, `vLeadSourceRoi`, `vSalesByPerson`,
 `vMonthlyTrend`), and the Blazor BI dashboard that reads them and surfaces
 lead-source ROI, win rate, and monthly pipeline trend. Current work focuses on
 CRUD on the estimates page and drill-downs from the dashboard cards.
+
+## Security
+
+See [SECURITY.md](SECURITY.md) for a threat model and NIST CSF 2.0 control mapping.
