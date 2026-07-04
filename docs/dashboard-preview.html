@@ -1,9 +1,22 @@
 <!doctype html>
+<!--
+  STATIC DESIGN PREVIEW - hand-built HTML/CSS mock, not the running application.
+
+  This page mirrors the layout of the Blazor BI dashboard
+  (ypyw_clean/CPA/CPA/CPA.Shared/Pages/Home.razor) so the design can be shared
+  without provisioning a database. It is NOT a screenshot or export of the
+  running Blazor app. Every figure shown is computed from the repository's
+  fixed-seed synthetic dataset (ypyw_clean/Processed/sample_estimates.csv,
+  enriched by azure/generate_sample_data.py) plus the placeholder marketing
+  spends seeded by azure/schema.sql. The ROI multiples are artifacts of those
+  hand-tuned synthetic inputs: illustrative of the analytics capability, not
+  real business results.
+-->
 <html lang="en">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>YPYW Business Intelligence - Synthetic Demo</title>
+  <title>YPYW Business Intelligence - Static Design Preview (Synthetic Data)</title>
   <style>
     :root {
       --navy: #162a46;
@@ -179,7 +192,7 @@
   <div class="shell">
     <header class="topbar">
       <div class="brand">YourPaintingYourWay <span>BI</span></div>
-      <div class="demo-tag">Privacy-safe synthetic demo</div>
+      <div class="demo-tag">Static design preview &middot; Synthetic data</div>
     </header>
 
     <main>
@@ -260,7 +273,7 @@
             </svg>
           </div>
           <div class="legend"><span><span class="swatch" style="background:#2563eb"></span>Total pipeline</span><span><span class="swatch" style="background:#059669"></span>Won value</span></div>
-          <div class="footnote">Preview generated from the repository's fixed-seed synthetic dataset. No client data is shown.</div>
+          <div class="footnote">Static design preview, hand-built to mirror the Blazor dashboard (Home.razor) &mdash; not a screenshot of the running app. Values are computed from the repository's fixed-seed synthetic dataset. No client data is shown.</div>
         </article>
       </section>
     </main>

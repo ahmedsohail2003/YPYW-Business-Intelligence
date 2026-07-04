@@ -2,7 +2,7 @@
 
 **Document type:** Business / system requirements
 **Project:** YPYW Business Intelligence Platform
-**Status:** Living document — core ETL, Azure backend, analytics views, and the BI dashboard are delivered; dashboard CRUD and drill-downs are in progress
+**Status:** Living document — core ETL, Azure backend, analytics views, and the BI dashboard are implemented (the ETL is unit-tested in CI; the SQL views and dashboard have no automated end-to-end verification yet); dashboard CRUD and drill-downs are in progress
 **Last updated:** 2026-06-29
 
 This document captures the business context, stakeholders, scope, and the
@@ -239,9 +239,9 @@ flowchart TD
     G --> H([Operator reviews totals and counts])
 ```
 
-### 6.3 Marketing-ROI flow (analytical) — delivered via `vLeadSourceRoi`
+### 6.3 Marketing-ROI flow (analytical) — implemented via `vLeadSourceRoi`
 
-How pipeline is compared against ad spend by channel (now implemented in the
+How pipeline is compared against ad spend by channel (implemented in the
 `vLeadSourceRoi` view and surfaced on the dashboard).
 
 ```mermaid
@@ -264,7 +264,7 @@ Each criterion is measurable and maps back to one or more requirements.
 | **AC-1** | Dropping a well-formed CSV into `DropZone/` results in all its rows appended to `RawEstimates` with **no manual steps**, and the file appears in `Processed/`. | FR-1…FR-6 | Drop the 500-row sample; confirm `RawEstimates` row count increases by 500 and the file moved. |
 | **AC-2** | A second file with the same name is archived **without overwriting** the first (timestamp prefix applied). | FR-6 | Drop the same filename twice; confirm two distinct files in `Processed/`. |
 | **AC-3** | A deliberately malformed CSV produces a logged error, **leaves the bad file in place**, and the watcher keeps running and successfully processes the next valid file. | FR-7, NFR-1, NFR-2 | Drop a broken file, then a valid one; confirm only the valid one is archived and the process is still alive. |
-| **AC-4** | `vEstimatesClean` returns **correctly typed** amounts and dates, with the parsed total over the 500 sample rows reconciling to the expected figure (≈ **$7.38M**). | FR-8, NFR-4 | `SELECT SUM(EstimateAmount) FROM vEstimatesClean;` matches the validated total. |
+| **AC-4** | `vEstimatesClean` returns **correctly typed** amounts and dates, with the parsed total over the 500 sample rows reconciling to the expected figure (≈ **$7.38M**). | FR-8, NFR-4 | `SELECT SUM(EstimateAmount) FROM vEstimatesClean;` matches the dataset's expected total (≈ $7.38M, the sum of the sample CSV amounts). |
 | **AC-5** | Rows with blank/invalid dates or amounts surface as `NULL` in the clean view rather than causing query failure. | FR-8, NFR-4 | Query the view over rows with empty `Estimate Expires Date`; confirm `NULL`, no error. |
 | **AC-6** | Re-running `schema.sql` (or `deploy.ps1`) on an existing database completes **without error** and does not duplicate or drop objects. | FR-15, NFR-3 | Run the schema twice; confirm clean second run. |
 | **AC-7** | The dashboard renders estimate rows (id, client, status, amount) sourced from `vEstimatesClean`. | FR-9, FR-14 | Load the Blazor page; confirm typed values match the view. |

@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1200" height="760" viewBox="0 0 1200 760" role="img" aria-labelledby="title desc">
-  <title id="title">YourPaintingYourWay business intelligence dashboard</title>
-  <desc id="desc">Static portfolio preview populated from the repository's 500-row privacy-safe synthetic dataset.</desc>
+  <title id="title">YourPaintingYourWay business intelligence dashboard - static design preview</title>
+  <desc id="desc">Static, hand-built design preview of the dashboard (not a screenshot of the running app), populated from the repository's 500-row privacy-safe synthetic dataset.</desc>
   <defs>
     <linearGradient id="pipelineArea" x1="0" y1="0" x2="0" y2="1">
       <stop offset="0" stop-color="#2563eb" stop-opacity=".25"/>
@@ -120,5 +120,5 @@
     <path class="won" d="M48 117 L143 115 L238 104 L333 106 L428 93 L523 76 L618 80 L713 81 L808 105 L903 105 L998 112 L1093 117"/>
     <g class="small" text-anchor="middle"><text x="48" y="140">Jan</text><text x="143" y="140">Feb</text><text x="238" y="140">Mar</text><text x="333" y="140">Apr</text><text x="428" y="140">May</text><text x="523" y="140">Jun</text><text x="618" y="140">Jul</text><text x="713" y="140">Aug</text><text x="808" y="140">Sep</text><text x="903" y="140">Oct</text><text x="998" y="140">Nov</text><text x="1093" y="140">Dec</text></g>
   </g>
-  <text class="small" x="34" y="746">Static preview generated from the fixed-seed synthetic dataset · Values are demonstrative, not verified business outcomes</text>
+  <text class="small" x="34" y="746">Static hand-built design preview, not a screenshot of the running app · Data: fixed-seed synthetic dataset · ROI figures are illustrative, not real business results</text>
 </svg>

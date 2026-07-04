@@ -6,11 +6,15 @@ A full-stack business intelligence platform built for **YourPaintingYourWay**, a
 
 ## Dashboard Preview
 
-[![Business intelligence dashboard populated with privacy-safe synthetic data](docs/dashboard-preview.svg)](docs/dashboard-preview.html)
+[![Static design preview of the business intelligence dashboard, populated with privacy-safe synthetic data](docs/dashboard-preview.svg)](docs/dashboard-preview.html)
 
-The preview is generated from the repository's fixed-seed 500-row synthetic dataset.
-It demonstrates the implemented KPI, lead-source ROI, sales attribution, and monthly trend
-experience without exposing client data or presenting generated ROI as verified business impact.
+The image above (and the [HTML page](docs/dashboard-preview.html) it links to) is a
+**high-fidelity static preview of the dashboard design** — hand-built HTML/SVG that
+mirrors the Blazor dashboard layout (`Home.razor`). It is not a screenshot of the
+running application. All values in it are computed from the repository's fixed-seed
+500-row synthetic dataset and the placeholder marketing spends seeded by
+`azure/schema.sql`; the ROI multiples it shows are illustrative of the analytics
+capability, not real business results.
 
 ## Architecture
 
@@ -106,9 +110,11 @@ dotnet run
 
 ## Cloud Deployment (Azure)
 
-The relational backend has been migrated from local SQL Server (LocalDB) to a
-fully managed **Azure SQL Database**, deployed as reproducible
-**Infrastructure-as-Code** with Bicep and a single PowerShell runbook.
+The relational backend targets a fully managed **Azure SQL Database** in place
+of the original local SQL Server (LocalDB) design. The stack is declared as
+reproducible **Infrastructure-as-Code** with Bicep and is deployable with a
+single PowerShell runbook; the resource names below are the values defined in
+`azure/main.bicep` and `azure/deploy.ps1`.
 
 ### Architecture
 
@@ -147,8 +153,8 @@ fully managed **Azure SQL Database**, deployed as reproducible
   applies the T-SQL schema with `sqlcmd` — end to end with no manual portal clicks.
 - **Raw-to-clean transformation:** `RawEstimates` archives the source CSV text
   faithfully, and the `vEstimatesClean` view parses currency strings
-  (`$24,399.00` → `DECIMAL`) and dates via `TRY_CONVERT` — verified across all
-  500 sample rows (parsed total ≈ $7.38M).
+  (`$24,399.00` → `DECIMAL`) and dates via `TRY_CONVERT`, NULL-safe by design.
+  The bundled 500-row synthetic dataset totals ≈ $7.38M once amounts are parsed.
 - **Secure secret handling:** the SQL admin password is never committed; it is read
   from the `SQL_ADMIN_PASSWORD` environment variable and passed to Azure as a
   secure parameter.
@@ -158,12 +164,26 @@ fully managed **Azure SQL Database**, deployed as reproducible
   [`azure/DEPLOY.md`](azure/DEPLOY.md) for the full cost breakdown and runbook.
 
 ## Status
-Active development. Shipped and verified end to end (schema → seed → views →
-dashboard): the raw-to-clean transformation layer (`vEstimatesClean`), the
-analytics views (`vKpiSummary`, `vLeadSourceRoi`, `vSalesByPerson`,
-`vMonthlyTrend`), and the Blazor BI dashboard that reads them and surfaces
-lead-source ROI, win rate, and monthly pipeline trend. Current work focuses on
-CRUD on the estimates page and drill-downs from the dashboard cards.
+Active development. Where each layer stands:
+
+- **ETL pipeline (`ypyw_clean/dataingest.py`):** implemented; the pytest suite in
+  `ypyw_clean/tests/` covers the header-cleaning and archive collision-handling
+  logic and runs in CI on every push.
+- **Database schema and analytics views (`azure/schema.sql`):** written with
+  idempotent guards and deployable to Azure SQL via the Bicep template and
+  `azure/deploy.ps1` runbook. The views (`vEstimatesClean`, `vKpiSummary`,
+  `vLeadSourceRoi`, `vSalesByPerson`, `vMonthlyTrend`) are not yet covered by
+  automated tests.
+- **Blazor BI dashboard (`ypyw_clean/CPA/`):** implemented — KPI cards, the
+  lead-source ROI table, sales-by-person, and the monthly pipeline chart read the
+  analytics views via Dapper. It requires a provisioned, seeded database to show
+  data; without a connection string it renders a "connect a database" banner.
+  There is no automated end-to-end verification of the deployed schema plus
+  dashboard yet, and `docs/dashboard-preview.html` is a static design preview,
+  not evidence of a verified deployment.
+
+Current work: automated end-to-end verification, CRUD on the estimates page, and
+drill-downs from the dashboard cards.
 
 ## Security
 
