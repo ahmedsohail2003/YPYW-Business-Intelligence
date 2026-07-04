@@ -2,7 +2,7 @@
 
 A full-stack business intelligence platform built for **YourPaintingYourWay**, a high-volume residential painting company in the GTA. The system automates data ingestion from client estimate exports and surfaces business metrics through a web dashboard.
 
-> **Note on Data:** The included `sample_estimates.csv` is a **synthetic dataset** with randomly generated names and amounts. It mirrors the schema of the real source data (500+ client estimates) seen during development but contains no actual client information. `azure/generate_sample_data.py` then enriches it (seeded and reproducible) with synthetic sales-funnel status, salesperson, lead source, and estimate dates so the analytics layer has meaningful dimensions to report on — while preserving the original amounts (~$7.38M total).
+> **Note on Data:** The included `sample_estimates.csv` is a **synthetic dataset** with randomly generated names and amounts. It mirrors the schema of the real source data (500+ client estimates) seen during development but contains no actual client information. `azure/generate_sample_data.py` then enriches it (seeded and reproducible) with synthetic sales-funnel status, salesperson, lead source, and estimate dates so the analytics layer has meaningful dimensions to report on — while preserving the original amounts (~$7.38M total). The generator's per-channel win rates are hand-tuned and the monthly marketing spends seeded by `azure/schema.sql` are placeholders, so every ROI figure derived from this data — on the dashboard or in its preview — is synthetic and illustrative of the analytics capability, not a real business result.
 
 ## Dashboard Preview
 

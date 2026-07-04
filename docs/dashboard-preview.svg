@@ -91,7 +91,7 @@
       <text class="td" x="560" y="11" text-anchor="end">$272,109</text><text class="td" x="646" y="11" text-anchor="end">$2,400</text><text class="td" x="714" y="11" text-anchor="end">113.4x</text>
     </g>
     <rect x="20" y="276" width="695" height="19" rx="5" fill="#ffedd5"/>
-    <text x="29" y="289" style="font:600 9px Inter,Segoe UI,sans-serif;fill:#8a3b12">Synthetic-data insight: Referral leads won value; Google Ads has the lowest paid ROI in this generated scenario.</text>
+    <text x="29" y="289" style="font:600 9px Inter,Segoe UI,sans-serif;fill:#8a3b12">Synthetic-data insight: Referral leads won value; Google Ads has lowest paid ROI. ROI multiples are illustrative, not real results.</text>
   </g>
 
   <g transform="translate(786 245)">

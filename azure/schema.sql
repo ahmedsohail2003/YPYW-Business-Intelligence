@@ -156,9 +156,12 @@ GO
 
 /* ---------------------------------------------------------------------
    6. MarketingCosts seed  (monthly ad spend per PAID channel, 2025)
-        Referral is organic (no rows -> $0 cost), which is what makes it
-        the highest-ROI channel in vLeadSourceRoi below. Seeded only if
-        the table is empty so re-runs stay idempotent.
+        The amounts below are illustrative placeholders for the synthetic
+        demo, not real ad spend; ROI multiples computed from them by
+        vLeadSourceRoi are demonstrative only. Referral is organic
+        (no rows -> $0 cost), which is what makes it the highest-ROI
+        channel in vLeadSourceRoi below. Seeded only if the table is
+        empty so re-runs stay idempotent.
    --------------------------------------------------------------------- */
 IF NOT EXISTS (SELECT 1 FROM dbo.MarketingCosts)
 BEGIN

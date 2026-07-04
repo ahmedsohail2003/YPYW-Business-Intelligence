@@ -5,9 +5,14 @@ analytics dimensions the BI layer reports on -- estimate date, sales-funnel stat
 salesperson, and lead source -- using a fixed seed so the output is reproducible.
 
 The data is SYNTHETIC: client names and amounts mirror the shape of real estimate
-exports but contain no real client information. Lead-source win rates and marketing
-costs are intentionally differentiated so the dashboard surfaces a genuine ROI
-insight (referral/organic leads convert best at the lowest cost).
+exports but contain no real client information. The per-channel win rates below are
+HAND-TUNED, and the monthly marketing spends seeded by azure/schema.sql are
+placeholders; both are deliberately differentiated so the dashboard has a clear ROI
+story to surface (referral/organic converts best at the lowest cost). Every ROI
+figure computed downstream -- including the multiples shown in
+docs/dashboard-preview.html -- is therefore an artifact of these choices: seeded,
+reproducible, and illustrative of the analytics capability, not a real business
+result.
 
 Output columns match the dbo.RawEstimates table so azure/seed_sample_data.py can
 bulk-load the file directly.
@@ -27,6 +32,8 @@ SEED = 20250629
 random.seed(SEED)
 
 # (LeadSourceId, name, relative lead volume, win rate)  -- IDs match schema.sql seed
+# Win rates are hand-tuned synthetic values; ROI numbers derived from them
+# (with the placeholder spends in schema.sql) are illustrative only.
 LEAD_SOURCES = [
     (1, "Homestars",  0.22, 0.42),
     (2, "Bark",       0.12, 0.22),
