@@ -2,7 +2,7 @@ name: CI
 
 on:
   push:
-    branches: [ main, "claude/**" ]
+    branches: [ main ]
   pull_request:
 
 # The Python ETL pipeline and its tests live in the ypyw_clean/ subdirectory.
